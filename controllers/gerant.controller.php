@@ -7,6 +7,7 @@ require_once dirname(__DIR__). '/services/commande.service.php';
 require_once dirname(__DIR__). '/services/livreur.service.php';
 require_once dirname(__DIR__). '/services/notification.service.php';
 require_once dirname(__DIR__). '/models/plat.model.php';
+require_once dirname(__DIR__). '/models/livreur.model.php';
 require_once dirname(__DIR__). '/models/commande.model.php';
 require_once dirname(__DIR__). '/models/livreur.model.php';
 require_once dirname(__DIR__) .'/models/tabGlobal.model.php';
