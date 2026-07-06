@@ -1,13 +1,16 @@
 <?php
 
-require_once dirname(__DIR__) . '/utils/validator.php';
-require_once dirname(__DIR__) . '/utils/util.view.php';
+require_once dirname(__DIR__). '/utils/validator.php';
+require_once dirname(__DIR__). '/utils/util.view.php';
 require_once dirname(__DIR__). '/utils/error.php';
 require_once dirname(__DIR__). '/services/commande.service.php';
+require_once dirname(__DIR__). '/services/livreur.service.php';
 require_once dirname(__DIR__). '/services/notification.service.php';
 require_once dirname(__DIR__). '/models/plat.model.php';
+require_once dirname(__DIR__). '/models/livreur.model.php';
 require_once dirname(__DIR__). '/models/commande.model.php';
-require_once dirname(__DIR__) . '/models/tabGlobal.model.php';
+require_once dirname(__DIR__). '/models/livreur.model.php';
+require_once dirname(__DIR__) .'/models/tabGlobal.model.php';
 
 
 function ajouterPlat(array &$plats): void
@@ -77,11 +80,77 @@ function validerCommande(array &$commandes): void
         return;
     }
 
+
+    
+   
+
+    
+
     
     mettreAJourStatutCommande($commandes, $idCommande, 'En préparation');
 
     
+
     notifierClient("client{$commandes[$index]['idClient']}@mail.com", "Votre commande #$idCommande est en préparation.");
 
     echo "\nCommande #$idCommande mise en préparation. Client notifié.\n";
 }
+
+
+function assignerLivreur(array &$commandes, array &$livreurs): void
+{
+    $idCommandeSaisi = saisie("Identifiant de la commande prête à expédier");
+
+    $errors = [];
+    required($idCommandeSaisi, 'identifiant de la commande', $errors);
+    if (!empty($errors)) {
+        showError($errors);
+        return;
+    }
+    $idCommande = (int) $idCommandeSaisi;
+
+    $index = trouverIndexCommande($commandes, $idCommande);
+    if ($index === null || $commandes[$index]['statut'] !== 'En préparation') {
+        showError(["Cette commande n'est pas prête à être expédiée."]);
+        return;
+    }
+
+    // RG2 : affichage des livreurs disponibles.
+    $livreursDisponibles = listerLivreursDisponibles($livreurs);
+    if (empty($livreursDisponibles)) {
+        echo "\nAucun livreur disponible pour le moment.\n";
+        return;
+    }
+    afficherListeLivreurs($livreursDisponibles);
+
+    $idLivreurSaisi = saisie("Identifiant du livreur à assigner");
+
+    $errors = [];
+    required($idLivreurSaisi, 'identifiant du livreur', $errors);
+    if (!empty($errors)) {
+        showError($errors);
+        return;
+    }
+    $idLivreur = (int) $idLivreurSaisi;
+
+    $livreur = trouverLivreurParId($livreurs, $idLivreur);
+    if ($livreur === null || $livreur['statut'] !== 'Disponible') {
+        showError(["Ce livreur n'est pas disponible."]);
+        return;
+    }
+
+    // RG3 : confirmation de l'assignation.
+    $confirmation = saisie("Confirmer l'assignation de {$livreur['nom']} ? (o/n)");
+    if (strtolower($confirmation) !== 'o') {
+        echo "\nAssignation annulée.\n";
+        return;
+    }
+
+    // RG4 : mise à jour des statuts + notification.
+    assignerLivreurCommande($commandes, $idCommande, $idLivreur);
+    mettreAJourStatutLivreur($livreurs, $idLivreur, 'Occupé');
+    notifierLivreur($livreur['telephone'], "Nouvelle livraison assignée : commande #$idCommande.");
+
+    echo "\nLivreur {$livreur['nom']} assigné à la commande #$idCommande avec succès.\n";
+}
+

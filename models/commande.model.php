@@ -25,3 +25,14 @@ function mettreAJourStatutCommande(array &$commandes, int $idCommande, string $s
     $commandes[$index]['statut'] = $statut;
     return true;
 }
+
+function assignerLivreurCommande(array &$commandes, int $idCommande, int $idLivreur): bool
+{
+    $index = trouverIndexCommande($commandes, $idCommande);
+    if ($index === null) {
+        return false;
+    }
+    $commandes[$index]['idLivreur'] = $idLivreur;
+    $commandes[$index]['statut'] = 'En livraison';
+    return true;
+}
