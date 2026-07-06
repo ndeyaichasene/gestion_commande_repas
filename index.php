@@ -8,6 +8,8 @@ require_once __DIR__ . '/controllers/gerant.controller.php';
 // ============================================================
 //  FRONT CONTROLLER — menu principal
 // ============================================================
-global $plats;
+global $plats,$commandes;
 
-consulterMenu($plats);    
+consulterMenu($plats);   
+passerCommande($plats, $commandes, $idClientConnecte); 
+consulterHistorique($commandes, $idClientConnecte);
