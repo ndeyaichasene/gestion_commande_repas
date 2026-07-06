@@ -9,6 +9,11 @@ function calculerMontantTotal(array $panier): float
     return $total;
 }
 
+function recupererCommandesParStatut(array $commandes, string $statut): array
+{
+    return array_values(array_filter($commandes, fn ($c) => $c['statut'] === $statut));
+}
+
 function recupererHistoriqueClient(array $commandes, int $idClient): array
 {
     return array_values(array_filter($commandes, fn ($c) => $c['idClient'] === $idClient));

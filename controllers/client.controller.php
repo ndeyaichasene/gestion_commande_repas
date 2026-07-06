@@ -5,7 +5,9 @@ require_once dirname(__DIR__ ). '/utils/util.view.php';
 require_once dirname(__DIR__ ). '/utils/error.php';
 require_once dirname(__DIR__ ). '/services/plat.service.php';
 require_once dirname(__DIR__ ). '/services/commande.service.php';
+require_once dirname(__DIR__ ). '/services/paiement.service.php';
 require_once dirname(__DIR__ ). '/models/commande.model.php';
+require_once dirname(__DIR__ ). '/models/paiement.model.php';
 require_once dirname(__DIR__ ). '/models/tabGlobal.model.php';
 
 
@@ -93,6 +95,64 @@ function passerCommande(array $plats, array &$commandes, int $idClient): void
 
     echo "\nCommande #$idCommande enregistrée avec succès. Statut : En attente\n";
 }
+
+function payerCommande(array &$commandes, array &$paiements): void
+{
+    $idCommandeSaisi = saisie("Identifiant de la commande à payer");
+
+    $errors = [];
+    required($idCommandeSaisi, 'identifiant de la commande', $errors);
+    if (!empty($errors)) {
+        showError($errors);
+        return;
+    }
+    $idCommande = (int) $idCommandeSaisi;
+
+    $index = trouverIndexCommande($commandes, $idCommande);
+    if ($index === null) {
+        showError(["Commande introuvable."]);
+        return;
+    }
+
+    $commande = $commandes[$index];
+
+    if ($commande['statut'] !== 'En attente') {
+        showError(["Cette commande ne peut pas être payée (statut actuel : {$commande['statut']})."]);
+        return;
+    }
+
+    $numeroCarte = saisie("Numéro de carte bancaire (16 chiffres)");
+
+    $errors = [];
+    validNumeroCarte($numeroCarte, $errors);
+    if (!empty($errors)) {
+        showError($errors);
+        return;
+    }
+
+    // RG2/RG3 : transmission au Système Bancaire et validation de la transaction.
+    $transactionValidee = transmettrePaiement($numeroCarte, $commande['montantTotal']);
+
+    if (!$transactionValidee) {
+        showError(["Paiement refusé par la banque. Veuillez réessayer avec une autre carte."]);
+        return;
+    }
+
+    // RG4 : mise à jour du statut + génération d'un reçu.
+    mettreAJourStatutCommande($commandes, $idCommande, 'Payée');
+
+    $paiement = [
+        'idPaiement'    => count($paiements) + 1,
+        'idCommande'    => $idCommande,
+        'montant'       => $commande['montantTotal'],
+        'datePaiement'  => date('d/m/Y H:i'),
+        'statut'        => 'Validé',
+    ];
+    enregistrerPaiementModel($paiements, $paiement);
+
+    afficherRecu($commandes[$index], $paiement);
+}
+
 
 function consulterHistorique(array $commandes, int $idClient): void
 {

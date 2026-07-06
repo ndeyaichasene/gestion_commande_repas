@@ -51,3 +51,14 @@ function afficherListeCommandes(array $commandes): void
     }
     echo "==================\n";
 }
+
+
+function afficherRecu(array $commande, array $paiement): void
+{
+    echo "\n****** REÇU DE PAIEMENT ******\n";
+    printf("Commande     : #%d\n", $commande['idCommande']);
+    printf("Montant payé : %.0f F\n", $paiement['montant']);
+    printf("Date         : %s\n", $paiement['datePaiement']);
+    printf("Statut       : %s\n", $paiement['statut']);
+    echo "******************************\n";
+}
