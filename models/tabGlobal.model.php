@@ -26,7 +26,7 @@ $commandes = [];
 
 $livreurs = [
     ['idLivreur' => 1, 'nom' => 'Ibrahima Sarr', 'telephone' => '77 111 11 11', 'statut' => 'Disponible'],
-    ['idLivreur' => 2, 'nom' => 'Fatou Diagne',  'telephone' => '78 222 22 22', 'statut' => 'Disponible'],
+    ['idLivreur' => 2, 'nom' => 'Modou Diagne',  'telephone' => '78 222 22 22', 'statut' => 'Disponible'],
     ['idLivreur' => 3, 'nom' => 'Omar Ba',       'telephone' => '76 333 33 33', 'statut' => 'Occupé'],
 ];
 

@@ -52,6 +52,18 @@ function afficherListeCommandes(array $commandes): void
     echo "==================\n";
 }
 
+function afficherListeLivreurs(array $livreurs): void
+{
+    if (empty($livreurs)) {
+        echo "\nAucun livreur disponible pour le moment.\n";
+        return;
+    }
+    echo "\n=== LIVREURS DISPONIBLES ===\n";
+    foreach ($livreurs as $l) {
+        printf("  [%d] %-20s %s\n", $l['idLivreur'], $l['nom'], $l['telephone']);
+    }
+    echo "============================\n";
+}
 
 function afficherRecu(array $commande, array $paiement): void
 {
