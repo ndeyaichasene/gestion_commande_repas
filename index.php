@@ -15,3 +15,5 @@ passerCommande($plats, $commandes, $idClientConnecte);
 payerCommande($commandes, $paiements);
 consulterHistorique($commandes, $idClientConnecte);
 ajouterPlat($plats);
+listerCommandesEnAttente($commandes);
+validerCommande($commandes);
